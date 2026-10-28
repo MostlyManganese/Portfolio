@@ -16,7 +16,7 @@ const DEFAULTS = {
   bloomThreshold: 0.5,
   rgbShift: 0.0,
   vignetteStrength: 0.3,
-  curvature: 0.15,
+  curvature: 0.25,
   flickerStrength: 0.01
 };
 
