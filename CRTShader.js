@@ -16,7 +16,7 @@ export const CRTShader = {
     rgbShift: { value: 0.0 },
     adaptiveIntensity: { value: 0.5 },
     vignetteStrength: { value: 0.3 },
-    curvature: { value: 0.15 },
+    curvature: { value: 0.25 },
     flickerStrength: { value: 0.01 }
   },
 
