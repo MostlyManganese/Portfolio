@@ -33,7 +33,7 @@ const CRT_DEFAULTS = {
   bloomThreshold: 0.5,
   rgbShift: 1.0,
   vignetteStrength: 0.3,
-  curvature: 0.1,
+  curvature: 0.2,
   flickerStrength: 0.01
 };
 
