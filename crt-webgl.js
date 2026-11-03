@@ -30,6 +30,9 @@ if (!gl) {
   throw new Error('WebGL2 not supported');
 }
 
+gl.clearColor(0.0, 0.0, 0.0, 1.0);
+gl.clear(gl.COLOR_BUFFER_BIT);
+
 const sceneCanvas = document.createElement('canvas');
 sceneCanvas.width = INITIAL_SCENE_SIZE;
 sceneCanvas.height = INITIAL_SCENE_SIZE;
