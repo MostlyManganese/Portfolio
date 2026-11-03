@@ -53,6 +53,7 @@ export const CRTShader = {
     uniform float curvature;
     uniform float flickerStrength;
     uniform float glitch;
+    uniform float power;
 
     varying vec2 vUv;
 
@@ -95,6 +96,12 @@ export const CRTShader = {
 
     void main() {
       vec2 uv = vUv;
+      // CRT power-on: the picture starts as a thin line and opens up
+         uv.y = (uv.y - 0.5) / max(power, 0.003) + 0.5;
+         if (uv.y < 0.0 || uv.y > 1.0) {
+           gl_FragColor = vec4(0.0);
+           return;
+         }
 
       // Apply screen curvature if enabled (early out for out-of-bounds)
       if (curvature > 0.001) {
@@ -182,6 +189,7 @@ export const CRTShader = {
       // Apply combined lighting effects in single multiplication
       pixel.rgb *= lightingMask;
 
+      pixel.rgb *= 1.0 + (1.0 - power) * 2.0;
       gl_FragColor = pixel;
     }
   `
