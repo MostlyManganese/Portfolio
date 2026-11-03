@@ -162,7 +162,12 @@ function drawScene2D(time) {
 
   ctx.font = '16px ' + FONT; ctx.fillStyle = COL.tx; ctx.fillText(NAME, 12, 10);
   ctx.font = '8px ' + FONT; ctx.fillStyle = COL.dim; ctx.fillText(TAGLINE, 12, 28);
-  ctx.fillStyle = '#1e3a5f'; ctx.fillRect(12, 42, W - 24, 1);
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(12.5, 42.5);
+  ctx.lineTo(W - 12.5, 42.5);
+  ctx.stroke();
 
   PROJECTS.forEach((p, i) => {
     const y = 52 + i * 24;
