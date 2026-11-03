@@ -1,4 +1,3 @@
-import { Pane } from 'https://cdn.jsdelivr.net/npm/tweakpane@4.0.5/dist/tweakpane.min.js';
 import { CRTShader } from './CRTShader.js';
 
 const CANVAS_ID = 'crt-canvas';
@@ -91,7 +90,6 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 applySmoothing(state.params.smoothing);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sceneCanvas.width, sceneCanvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-setupPane();
 resize();
 window.addEventListener('resize', resize, { passive: true });
 
@@ -237,49 +235,6 @@ function resize() {
   applySmoothing(state.params.smoothing);
 }
 
-function setupPane() {
-  const pane = new Pane({ title: 'WebGL CRT Shader', expanded: true });
-  pane.element.style.position = 'fixed';
-  pane.element.style.top = `${PANE_OFFSET}px`;
-  pane.element.style.right = `${PANE_OFFSET}px`;
-
-  const params = state.params;
-
-  pane.addBinding(params, 'enabled', { label: 'Enabled' }).on('change', ev => {
-    state.params.enabled = ev.value;
-  });
-  pane.addBinding(params, 'smoothing', { label: 'Smoothing' }).on('change', ev => {
-    state.params.smoothing = ev.value;
-    applySmoothing(ev.value);
-  });
-  pane.addBinding(params, 'showShapes', { label: 'Shapes' });
-
-  const scanlines = pane.addFolder({ title: 'Scanlines', expanded: true });
-  scanlines.addBinding(params, 'scanlineIntensity', { min: 0, max: 1, step: 0.01, label: 'Intensity' });
-  scanlines.addBinding(params, 'scanlineCount', { min: 50, max: 1200, step: 1, label: 'Count' });
-  scanlines.addBinding(params, 'adaptiveIntensity', { min: 0, max: 1, step: 0.01, label: 'Adaptive' });
-
-  const color = pane.addFolder({ title: 'Color', expanded: true });
-  color.addBinding(params, 'brightness', { min: 0.6, max: 1.8, step: 0.01, label: 'Brightness' });
-  color.addBinding(params, 'contrast', { min: 0.6, max: 1.8, step: 0.01, label: 'Contrast' });
-  color.addBinding(params, 'saturation', { min: 0, max: 2, step: 0.01, label: 'Saturation' });
-
-  const bloom = pane.addFolder({ title: 'Bloom', expanded: true });
-  bloom.addBinding(params, 'bloomIntensity', { min: 0, max: 1.5, step: 0.01, label: 'Intensity' });
-  bloom.addBinding(params, 'bloomThreshold', { min: 0, max: 1, step: 0.01, label: 'Threshold' });
-  bloom.addBinding(params, 'rgbShift', { min: 0, max: 1, step: 0.01, label: 'RGB Shift' });
-
-  const framing = pane.addFolder({ title: 'Framing', expanded: true });
-  framing.addBinding(params, 'vignetteStrength', { min: 0, max: 2, step: 0.01, label: 'Vignette' });
-  framing.addBinding(params, 'curvature', { min: 0, max: 0.5, step: 0.005, label: 'Curvature' });
-  framing.addBinding(params, 'flickerStrength', { min: 0, max: 0.15, step: 0.001, label: 'Flicker' });
-
-  pane.addButton({ title: 'Reset to defaults' }).on('click', () => {
-    Object.assign(params, CRT_DEFAULTS);
-    applySmoothing(params.smoothing);
-    pane.refresh();
-  });
-}
 
 function buildVertexSource() {
   return `#version 300 es
