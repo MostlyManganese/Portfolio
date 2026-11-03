@@ -219,10 +219,10 @@ function powerAmount(t) {
 }
 
 function start() {
-  swallowInput = true;
-  setTimeout(() => { swallowInput = false; }, 400);
   if (started) return;
   started = true;
+  swallowInput = true;
+  setTimeout(() => { swallowInput = false; }, 400);
   const el = document.getElementById('start');
   if (el) el.remove();
   zipSound.play().catch(() => {});
