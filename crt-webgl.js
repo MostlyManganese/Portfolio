@@ -119,13 +119,13 @@ const NAME = 'PickledMango';
 const TAGLINE = 'Member of Mango Studio.';
 const PROJECTS = [
   { n: 'About Me', t: 'JavaScript / Canvas', d: 'A short line about what it does and why you made it.', l: 'https://github.com/MostlyManganese/Portfolio', img: 'project1.png' },
-  { n: 'Project one', t: 'Game / Renpy', d: 'A visual novel submission for Comfy Autumn Jam 2026.', l: 'https://pickledmango.itch.io/the-choice-i-made-in-autumn', img: 'project2.png' },
+  { n: 'Project one', title: 'The Choice I Made in Autumn', t: 'Game / Renpy', d: 'A visual novel submission for Comfy Autumn Jam 2026.', l: 'https://pickledmango.itch.io/the-choice-i-made-in-autumn', img: 'project2.png' },
   { n: 'Project three', t: 'Python / Data', d: 'Mention the problem it solves and what you learned.', l: '', img: 'project3.png' },
   { n: 'Project four', t: 'Game / Pixel art', d: 'Each project gets a title, its tech, and two lines of text.', l: '', img: 'project4.png' }
 ];
 const LINKS = [
   { n: 'GitHub', x: 372, u: 'https://github.com/MostlyManganese' },
-  { n: 'Email', x: 436, u: 'mailto:you@example.com' }
+  { n: 'Email', x: 436, u: 'mailto:mangoose252@example.com' }
 ];
 // ---- end of content ----
 
@@ -186,13 +186,18 @@ function drawScene2D(time) {
     ctx.strokeStyle = COL.cy; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   }
 
-  ctx.font = '16px ' + FONT; ctx.fillStyle = COL.pk; ctx.fillText(p.n, px, 182);
-  ctx.font = '8px ' + FONT; ctx.fillStyle = COL.cy; ctx.fillText(p.t, px, 204);
-  ctx.fillStyle = COL.tx;
-  wrap(ctx, p.d, pw).slice(0, 3).forEach((line, i) => ctx.fillText(line, px, 218 + i * 12));
-  if (p.l) { ctx.fillStyle = COL.ye; ctx.fillText('Enter: open project', px, 246); }
-  ctx.fillStyle = COL.dim; ctx.fillText('Arrows choose, C toggles CRT', 12, 258);
-  LINKS.forEach(k => { ctx.fillStyle = COL.cy; ctx.fillText(k.n, k.x, 258); });
+  const title = p.title || p.n;
+  let size = 16;
+  ctx.font = size + 'px ' + FONT;
+  while (size > 8 && ctx.measureText(title).width > pw) { size -= 2; ctx.font = size + 'px ' + FONT; }
+  ctx.fillStyle = COL.pk;
+  ctx.fillText(title, px, 182 + (16 - size) / 2);
+    ctx.font = '8px ' + FONT; ctx.fillStyle = COL.cy; ctx.fillText(p.t, px, 204);
+    ctx.fillStyle = COL.tx;
+    wrap(ctx, p.d, pw).slice(0, 3).forEach((line, i) => ctx.fillText(line, px, 218 + i * 12));
+    if (p.l) { ctx.fillStyle = COL.ye; ctx.fillText('Enter: open project', px, 246); }
+    ctx.fillStyle = COL.dim; ctx.fillText('Arrows choose, C toggles CRT', 12, 258);
+    LINKS.forEach(k => { ctx.fillStyle = COL.cy; ctx.fillText(k.n, k.x, 258); });
 }
 
 function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
