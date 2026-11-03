@@ -162,12 +162,7 @@ function drawScene2D(time) {
 
   ctx.font = '16px ' + FONT; ctx.fillStyle = COL.tx; ctx.fillText(NAME, 12, 10);
   ctx.font = '8px ' + FONT; ctx.fillStyle = COL.dim; ctx.fillText(TAGLINE, 12, 28);
-  ctx.strokeStyle = '#1e3a5f';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(12.5, 42.5);
-  ctx.lineTo(W - 12.5, 42.5);
-  ctx.stroke();
+  ctx.fillStyle = '#1e3a5f'; ctx.fillRect(12, 42, W - 24, 1);
 
   PROJECTS.forEach((p, i) => {
     const y = 52 + i * 24;
@@ -224,14 +219,22 @@ function powerAmount(t) {
 }
 
 function start() {
-  if (started) return;
+  if (started) return; // Exit immediately if already started
+  
   started = true;
   swallowInput = true;
   setTimeout(() => { swallowInput = false; }, 400);
+
   const el = document.getElementById('start');
   if (el) el.remove();
+
+  // Reveal the canvas when powered on
+  const canvasEl = document.getElementById('crt-canvas');
+  if (canvasEl) canvasEl.style.opacity = '1';
+
   zipSound.play().catch(() => {});
 }
+
 window.addEventListener('keydown', start);
 window.addEventListener('pointerdown', start);
 
