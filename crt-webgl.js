@@ -61,7 +61,8 @@ const uniforms = getUniformLocations(gl, program, [
   'vignetteStrength',
   'curvature',
   'flickerStrength',
-  'glitch'
+  'glitch',
+  'power'
 ]);
 
 const texture = gl.createTexture();
@@ -105,6 +106,7 @@ function render(ts) {
   gl.uniform1f(uniforms.curvature, state.params.curvature);
   gl.uniform1f(uniforms.flickerStrength, state.params.flickerStrength);
   gl.uniform1f(uniforms.glitch, glitchAmount(state.time));
+  gl.uniform1f(uniforms.power, powerAmount(state.time));
 
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -201,7 +203,17 @@ function drawScene2D(time) {
 
 function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
 function glitchAmount(t) { return reduceMotion ? 0 : Math.max(0, 1 - (t - glitchStart) / GLITCH_SECONDS); }
+   const POWER_ON_SECONDS = 1.1;
+   let powerStart = null;
+   function powerAmount(t) {
+     if (reduceMotion) return 1;
+     if (powerStart === null) powerStart = t;
+     const p = Math.min(1, (t - powerStart) / POWER_ON_SECONDS);
+     return 1 - Math.pow(1 - p, 3);
+   }
 function choose(i) { sel = (i + PROJECTS.length) % PROJECTS.length; glitchStart = state.time; }
+
+
 
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' || e.key === 'ArrowRight') choose(sel + 1);
@@ -294,6 +306,7 @@ function buildFragmentSource() {
     uniform float curvature;
     uniform float flickerStrength;
     uniform float glitch;
+    uniform float power;
     in vec2 vUv;
     out vec4 fragColor;
     // Early exit for bypass
