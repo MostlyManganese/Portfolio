@@ -1,10 +1,5 @@
 import { CRTShader } from './CRTShader.js';
 
-const tvOn = new Audio('CRT TV Turning On Sound Effect.mp3');
-tvOn.volume = 0.4;                 
-
-tvOn.play();
-
 const CANVAS_ID = 'crt-canvas';
 const PANE_OFFSET = 16;
 const PIXEL_RATIO_CAP = 2;
