@@ -7,23 +7,11 @@ const BASE_SCENE_SIZE = 1024;
 const INITIAL_SCENE_SIZE = BASE_SCENE_SIZE;
 const BG_GRADIENT_INNER = '#0b1f3a';
 const BG_GRADIENT_OUTER = '#050a14';
-const BASE_ORBIT_RADIUS = 260;
-const ORBIT_SPEED = 0.45;
-const SPIN_SPEED = 0.9;
-const BASE_SHAPE_SIZE = 220;
-const BASE_SPHERE_RADIUS = 110;
-const BASE_PYRAMID_RADIUS = 220;
-const BASE_PYRAMID_HEIGHT = 220;
-const GIF_PATH = './wormnomnom.gif';
-const GIF_WIDTH = 256;
-const GIF_HEIGHT = 256;
-const GIF_SCALE = 1;
 const CRT_DEFAULTS = {
   enabled: true,
   smoothing: true,
-  showShapes: false,
   scanlineIntensity: 0.5,
-  scanlineCount: 256,
+  scanlineCount: 270,
   adaptiveIntensity: 0.3,
   brightness: 1.5,
   contrast: 1.05,
@@ -46,14 +34,6 @@ const sceneCanvas = document.createElement('canvas');
 sceneCanvas.width = INITIAL_SCENE_SIZE;
 sceneCanvas.height = INITIAL_SCENE_SIZE;
 const sceneCtx = sceneCanvas.getContext('2d');
-
-const gifImage = new Image();
-gifImage.src = GIF_PATH;
-gifImage.crossOrigin = 'anonymous';
-let gifReady = false;
-gifImage.onload = () => {
-  gifReady = true;
-};
 
 const state = {
   time: 0,
@@ -129,96 +109,111 @@ function render(ts) {
   requestAnimationFrame(render);
 }
 
-function drawScene2D(time) {
-  const t = time;
-  const w = sceneCanvas.width;
-  const h = sceneCanvas.height;
-  sceneCtx.clearRect(0, 0, w, h);
+// ---- Menu content: edit this part ----
+const W = 480, H = 270;                       // virtual screen grid; everything is placed on it
+const FONT = '"Press Start 2P", monospace';
+const COL = { cy: '#22d3ee', pk: '#f472b6', ye: '#facc15', tx: '#e2e8f0', dim: '#64748b' };
+const NAME = 'Your Name';
+const TAGLINE = 'Creative developer. Choose a project.';
+const PROJECTS = [
+  { n: 'Project one', t: 'JavaScript / Canvas', d: 'A short line about what it does and why you made it.', l: 'https://github.com/MostlyManganese/Portfolio', img: 'project1.png' },
+  { n: 'Project two', t: 'WebGL / GLSL', d: 'Swap this for a screenshot of the real thing.', l: '', img: 'project2.png' },
+  { n: 'Project three', t: 'Python / Data', d: 'Mention the problem it solves and what you learned.', l: '', img: 'project3.png' },
+  { n: 'Project four', t: 'Game / Pixel art', d: 'Each project gets a title, its tech, and two lines of text.', l: '', img: 'project4.png' }
+];
+const LINKS = [
+  { n: 'GitHub', x: 372, u: 'https://github.com/MostlyManganese' },
+  { n: 'Email', x: 436, u: 'mailto:you@example.com' }
+];
+// ---- end of content ----
 
-  const grad = sceneCtx.createRadialGradient(
-    w * 0.3,
-    h * 0.3,
-    Math.min(w, h) * 0.1,
-    w * 0.5,
-    h * 0.5,
-    Math.min(w, h) * 0.8
-  );
+let sel = 0;
+PROJECTS.forEach(p => { if (p.img) { p.im = new Image(); p.im.src = p.img; } });
+document.fonts.load('8px "Press Start 2P"').catch(() => {});
+
+function wrap(ctx, s, maxW) {
+  const out = []; let line = '';
+  for (const word of s.split(' ')) {
+    const next = line ? line + ' ' + word : word;
+    if (ctx.measureText(next).width > maxW && line) { out.push(line); line = word; } else line = next;
+  }
+  out.push(line);
+  return out;
+}
+
+function drawScene2D(time) {
+  const ctx = sceneCtx, w = sceneCanvas.width, h = sceneCanvas.height;
+  const s = Math.min(w / W, h / H);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const grad = ctx.createRadialGradient(w * 0.3, h * 0.3, Math.min(w, h) * 0.1, w * 0.5, h * 0.5, Math.max(w, h) * 0.7);
   grad.addColorStop(0, BG_GRADIENT_INNER);
   grad.addColorStop(1, BG_GRADIENT_OUTER);
-  sceneCtx.fillStyle = grad;
-  sceneCtx.fillRect(0, 0, w, h);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+  ctx.setTransform(s, 0, 0, s, (w - W * s) / 2, (h - H * s) / 2);   // from here on, draw in 480x270 units
+  ctx.textBaseline = 'top';
 
-  const centerX = w * 0.5;
-  const centerY = h * 0.45;
-  const scale = Math.min(w, h) / BASE_SCENE_SIZE;
-  const orbitRadius = BASE_ORBIT_RADIUS * scale;
+  ctx.font = '16px ' + FONT; ctx.fillStyle = COL.tx; ctx.fillText(NAME, 12, 10);
+  ctx.font = '8px ' + FONT; ctx.fillStyle = COL.dim; ctx.fillText(TAGLINE, 12, 28);
+  ctx.fillStyle = '#1e3a5f'; ctx.fillRect(12, 42, W - 24, 1);
 
-  // Draw background elements in order: gradient, GIF, then shapes
-  if (gifReady) {
-    const side = Math.min(w, h) * GIF_SCALE;
-    const drawW = side;
-    const drawH = side;
-    const gifX = (w - drawW) * 0.5;
-    const gifY = (h - drawH) * 0.5;
-    sceneCtx.drawImage(gifImage, gifX, gifY, drawW, drawH);
+  PROJECTS.forEach((p, i) => {
+    const y = 52 + i * 24;
+    if (i === sel) {
+      ctx.fillStyle = 'rgba(34,211,238,.16)'; ctx.fillRect(8, y - 5, 158, 20);
+      ctx.fillStyle = COL.ye;
+      if (Math.floor(time * 2) % 2 === 0) ctx.fillText('>', 12, y);
+    }
+    ctx.fillStyle = i === sel ? COL.ye : COL.dim;
+    ctx.fillText(p.n, 26, y);
+  });
+
+  const px = 176, py = 50, pw = 292, ph = 122, p = PROJECTS[sel], im = p.im;
+  ctx.fillStyle = '#07142a'; ctx.fillRect(px, py, pw, ph);
+  if (im && im.complete && im.naturalWidth) {
+    const k = Math.min(pw / im.naturalWidth, ph / im.naturalHeight);
+    const dw = im.naturalWidth * k, dh = im.naturalHeight * k;
+    ctx.drawImage(im, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh);
   }
+  ctx.strokeStyle = COL.cy; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
 
-  if (state.params.showShapes) {
-    drawCube(centerX, centerY, t, scale, orbitRadius);
-    drawSphere(centerX, centerY, t, scale, orbitRadius);
-    drawPyramid(centerX, centerY, t, scale, orbitRadius);
+  ctx.font = '16px ' + FONT; ctx.fillStyle = COL.pk; ctx.fillText(p.n, px, 182);
+  ctx.font = '8px ' + FONT; ctx.fillStyle = COL.cy; ctx.fillText(p.t, px, 204);
+  ctx.fillStyle = COL.tx;
+  wrap(ctx, p.d, pw).slice(0, 3).forEach((line, i) => ctx.fillText(line, px, 218 + i * 12));
+  if (p.l) { ctx.fillStyle = COL.ye; ctx.fillText('Enter: open project', px, 246); }
+  ctx.fillStyle = COL.dim; ctx.fillText('Arrows choose, C toggles CRT', 12, 258);
+  LINKS.forEach(k => { ctx.fillStyle = COL.cy; ctx.fillText(k.n, k.x, 258); });
+}
+
+function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
+function choose(i) { sel = (i + PROJECTS.length) % PROJECTS.length; }
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') choose(sel + 1);
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') choose(sel - 1);
+  else if (e.key === 'Enter') openLink(PROJECTS[sel].l);
+  else if (e.key === 'c' || e.key === 'C') state.params.enabled = !state.params.enabled;
+});
+
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  let u = (e.clientX - r.left) / r.width, v = 1 - (e.clientY - r.top) / r.height;
+  if (state.params.enabled && state.params.curvature > 0.001) {   // undo the shader's screen curve
+    const cx = u * 2 - 1, cy = v * 2 - 1, k = 1 + (cx * cx + cy * cy) * state.params.curvature * 0.25;
+    u = cx * k * 0.5 + 0.5; v = cy * k * 0.5 + 0.5;
   }
-}
-
-function drawCube(cx, cy, t, scale, orbitRadius) {
-  const angle = t * ORBIT_SPEED;
-  const spin = t * SPIN_SPEED;
-  const x = cx + Math.cos(angle) * orbitRadius;
-  const y = cy + Math.sin(angle) * orbitRadius;
-  sceneCtx.save();
-  sceneCtx.translate(x, y);
-  sceneCtx.rotate(spin);
-  sceneCtx.fillStyle = '#3b82f6';
-  const size = BASE_SHAPE_SIZE * scale;
-  sceneCtx.fillRect(-size * 0.5, -size * 0.5, size, size);
-  sceneCtx.restore();
-}
-
-function drawSphere(cx, cy, t, scale, orbitRadius) {
-  const angle = t * ORBIT_SPEED + (Math.PI * 2) / 3;
-  const spin = t * SPIN_SPEED * 0.8;
-  const x = cx + Math.cos(angle) * orbitRadius;
-  const y = cy + Math.sin(angle) * orbitRadius;
-  sceneCtx.save();
-  sceneCtx.translate(x, y);
-  sceneCtx.rotate(spin);
-  sceneCtx.fillStyle = '#ef4444';
-  sceneCtx.beginPath();
-  const r = BASE_SPHERE_RADIUS * scale;
-  sceneCtx.arc(0, 0, r, 0, Math.PI * 2);
-  sceneCtx.fill();
-  sceneCtx.restore();
-}
-
-function drawPyramid(cx, cy, t, scale, orbitRadius) {
-  const angle = t * ORBIT_SPEED + (Math.PI * 4) / 3;
-  const spin = t * SPIN_SPEED * 1.2;
-  const x = cx + Math.cos(angle) * orbitRadius;
-  const y = cy + Math.sin(angle) * orbitRadius;
-  sceneCtx.save();
-  sceneCtx.translate(x, y);
-  sceneCtx.rotate(spin);
-  sceneCtx.fillStyle = '#22c55e';
-  sceneCtx.beginPath();
-  const pr = BASE_PYRAMID_RADIUS * scale;
-  const ph = BASE_PYRAMID_HEIGHT * scale;
-  sceneCtx.moveTo(0, -ph * 0.5);
-  sceneCtx.lineTo(-pr * 0.5, ph * 0.5);
-  sceneCtx.lineTo(pr * 0.5, ph * 0.5);
-  sceneCtx.closePath();
-  sceneCtx.fill();
-  sceneCtx.restore();
-}
+  const w = sceneCanvas.width, h = sceneCanvas.height, s = Math.min(w / W, h / H);
+  const x = (u * w - (w - W * s) / 2) / s, y = ((1 - v) * h - (h - H * s) / 2) / s;
+  if (x < 170 && y >= 47 && y < 52 + PROJECTS.length * 24 - 5) { choose(Math.floor((y - 47) / 24)); return; }
+  if (y >= 254) {
+    sceneCtx.font = '8px ' + FONT;
+    const k = LINKS.find(k => x >= k.x && x < k.x + sceneCtx.measureText(k.n).width);
+    if (k) openLink(k.u);
+    return;
+  }
+  if (x >= 176 && y >= 46 && y < 260) openLink(PROJECTS[sel].l);
+});
 
 function resize() {
   const dpr = Math.min(window.devicePixelRatio || 1, PIXEL_RATIO_CAP);
@@ -234,7 +229,6 @@ function resize() {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sceneCanvas.width, sceneCanvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
   applySmoothing(state.params.smoothing);
 }
-
 
 function buildVertexSource() {
   return `#version 300 es
