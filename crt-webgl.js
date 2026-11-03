@@ -60,7 +60,8 @@ const uniforms = getUniformLocations(gl, program, [
   'adaptiveIntensity',
   'vignetteStrength',
   'curvature',
-  'flickerStrength'
+  'flickerStrength',
+  'glitch'
 ]);
 
 const texture = gl.createTexture();
@@ -103,6 +104,7 @@ function render(ts) {
   gl.uniform1f(uniforms.vignetteStrength, state.params.vignetteStrength);
   gl.uniform1f(uniforms.curvature, state.params.curvature);
   gl.uniform1f(uniforms.flickerStrength, state.params.flickerStrength);
+  gl.uniform1f(uniforms.glitch, glitchAmount(state.time));
 
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -128,6 +130,9 @@ const LINKS = [
 // ---- end of content ----
 
 let sel = 0;
+let glitchStart = -9;   // time of the last project switch
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const GLITCH_SECONDS = 0.35;
 PROJECTS.forEach(p => { if (p.img) { p.im = new Image(); p.im.src = p.img; } });
 document.fonts.load('8px "Press Start 2P"').catch(() => {});
 
@@ -187,7 +192,8 @@ function drawScene2D(time) {
 }
 
 function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
-function choose(i) { sel = (i + PROJECTS.length) % PROJECTS.length; }
+function glitchAmount(t) { return reduceMotion ? 0 : Math.max(0, 1 - (t - glitchStart) / GLITCH_SECONDS); }
+function choose(i) { sel = (i + PROJECTS.length) % PROJECTS.length; glitchStart = state.time; }
 
 window.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' || e.key === 'ArrowRight') choose(sel + 1);
@@ -280,6 +286,7 @@ function buildFragmentSource() {
     uniform float vignetteStrength;
     uniform float curvature;
     uniform float flickerStrength;
+    uniform float glitch;
     in vec2 vUv;
     out vec4 fragColor;
     // Early exit for bypass
