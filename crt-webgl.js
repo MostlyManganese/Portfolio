@@ -201,11 +201,12 @@ function drawScene2D(time) {
     LINKS.forEach(k => { ctx.fillStyle = COL.cy; ctx.fillText(k.n, k.x, 258); });
 }
 
-function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
+function openLink(u) { if (swallowInput) return; if (u) window.open(u, '_blank', 'noopener'); }
 function glitchAmount(t) { return reduceMotion ? 0 : Math.max(0, 1 - (t - glitchStart) / GLITCH_SECONDS); }
 const POWER_ON_SECONDS = 1.1;
 let powerStart = null;
 let started = false;
+let swallowInput = false;
 const zipSound = new Audio('CRT TV Turning On Sound Effect.mp3');
 zipSound.volume = 0.5;
 
@@ -218,6 +219,8 @@ function powerAmount(t) {
 }
 
 function start() {
+  swallowInput = true;
+  setTimeout(() => { swallowInput = false; }, 400);
   if (started) return;
   started = true;
   const el = document.getElementById('start');
