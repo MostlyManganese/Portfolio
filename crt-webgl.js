@@ -174,13 +174,17 @@ function drawScene2D(time) {
   });
 
   const px = 176, py = 50, pw = 292, ph = 122, p = PROJECTS[sel], im = p.im;
-  ctx.fillStyle = '#07142a'; ctx.fillRect(px, py, pw, ph);
   if (im && im.complete && im.naturalWidth) {
     const k = Math.min(pw / im.naturalWidth, ph / im.naturalHeight);
     const dw = im.naturalWidth * k, dh = im.naturalHeight * k;
-    ctx.drawImage(im, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh);
+    const dx = px + (pw - dw) / 2;          // use px instead to left-align it
+    ctx.drawImage(im, dx, py, dw, dh);
+    ctx.strokeStyle = COL.cy; ctx.lineWidth = 1;
+    ctx.strokeRect(dx + 0.5, py + 0.5, dw - 1, dh - 1);
+  } else {
+    ctx.fillStyle = '#07142a'; ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = COL.cy; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
   }
-  ctx.strokeStyle = COL.cy; ctx.lineWidth = 1; ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
 
   ctx.font = '16px ' + FONT; ctx.fillStyle = COL.pk; ctx.fillText(p.n, px, 182);
   ctx.font = '8px ' + FONT; ctx.fillStyle = COL.cy; ctx.fillText(p.t, px, 204);
