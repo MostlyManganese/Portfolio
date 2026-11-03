@@ -115,11 +115,11 @@ function render(ts) {
 const W = 480, H = 270;                       // virtual screen grid; everything is placed on it
 const FONT = '"Press Start 2P", monospace';
 const COL = { cy: '#22d3ee', pk: '#f472b6', ye: '#facc15', tx: '#e2e8f0', dim: '#64748b' };
-const NAME = 'Your Name';
-const TAGLINE = 'Creative developer. Choose a project.';
+const NAME = 'PickledMango';
+const TAGLINE = 'Member of Mango Studio.';
 const PROJECTS = [
-  { n: 'Project one', t: 'JavaScript / Canvas', d: 'A short line about what it does and why you made it.', l: 'https://github.com/MostlyManganese/Portfolio', img: 'project1.png' },
-  { n: 'Project two', t: 'WebGL / GLSL', d: 'Swap this for a screenshot of the real thing.', l: '', img: 'project2.png' },
+  { n: 'About Me', t: 'JavaScript / Canvas', d: 'A short line about what it does and why you made it.', l: 'https://github.com/MostlyManganese/Portfolio', img: 'project1.png' },
+  { n: 'Project one', t: 'Game / Renpy', d: 'A visual novel submission for Comfy Autumn Jam 2026.', l: 'https://pickledmango.itch.io/the-choice-i-made-in-autumn', img: 'project2.png' },
   { n: 'Project three', t: 'Python / Data', d: 'Mention the problem it solves and what you learned.', l: '', img: 'project3.png' },
   { n: 'Project four', t: 'Game / Pixel art', d: 'Each project gets a title, its tech, and two lines of text.', l: '', img: 'project4.png' }
 ];
