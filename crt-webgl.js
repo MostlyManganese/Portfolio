@@ -208,7 +208,7 @@ let powerStart = null;
 let started = false;
 let swallowInput = false;
 const zipSound = new Audio('CRT TV Turning On Sound Effect.mp3');
-zipSound.volume = 0.5;
+zipSound.volume = 0.7;
 
 function powerAmount(t) {
   if (!started) return 0;                
