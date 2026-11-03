@@ -17,7 +17,8 @@ export const CRTShader = {
     adaptiveIntensity: { value: 0.5 },
     vignetteStrength: { value: 0.3 },
     curvature: { value: 0.55 },
-    flickerStrength: { value: 0.01 }
+    flickerStrength: { value: 0.01 },
+    glitch: { value: 0.0 }
   },
 
   vertexShader: /* glsl */ `
@@ -51,6 +52,7 @@ export const CRTShader = {
     uniform float vignetteStrength;
     uniform float curvature;
     uniform float flickerStrength;
+    uniform float glitch;
 
     varying vec2 vUv;
 
@@ -103,8 +105,22 @@ export const CRTShader = {
         }
       }
 
+      // Glitch: rows shift sideways in short bursts (strength fades from 1 to 0)
+      if (glitch > 0.001) {
+        float row = floor(uv.y * 60.0);
+        float tick = floor(time * 30.0);
+        float rnd = fract(sin(dot(vec2(row, tick), vec2(12.9898, 78.233))) * 43758.5453);
+        float pick = fract(sin(dot(vec2(row, tick + 7.0), vec2(12.9898, 78.233))) * 43758.5453);
+        uv.x += glitch * (rnd - 0.5) * 0.08 * step(0.5, pick);
+      }
+
       // Get the original pixel color
       vec4 pixel = texture2D(tDiffuse, uv);
+
+      // Glitch: add static noise
+      if (glitch > 0.001) {
+        pixel.rgb += glitch * fract(sin(dot(uv * vec2(300.0, 200.0) + time, vec2(12.9898, 78.233))) * 43758.5453) * 0.35;
+      }
 
       // Apply bloom effect with threshold-based sampling (skip if disabled)
       if (bloomIntensity > 0.001) {
