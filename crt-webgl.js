@@ -196,7 +196,6 @@ function drawScene2D(time) {
     ctx.fillStyle = COL.tx;
     wrap(ctx, p.d, pw).slice(0, 3).forEach((line, i) => ctx.fillText(line, px, 218 + i * 12));
     if (p.l) { ctx.fillStyle = COL.ye; ctx.fillText('Enter: open project', px, 246); }
-    ctx.fillStyle = COL.dim; ctx.fillText('Arrows choose, C toggles CRT', 12, 258);
     LINKS.forEach(k => { ctx.fillStyle = COL.cy; ctx.fillText(k.n, k.x, 258); });
 }
 
@@ -208,7 +207,6 @@ window.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' || e.key === 'ArrowRight') choose(sel + 1);
   else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') choose(sel - 1);
   else if (e.key === 'Enter') openLink(PROJECTS[sel].l);
-  else if (e.key === 'c' || e.key === 'C') state.params.enabled = !state.params.enabled;
 });
 
 canvas.addEventListener('click', e => {
