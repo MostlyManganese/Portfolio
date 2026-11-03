@@ -208,14 +208,30 @@ function drawScene2D(time) {
 
 function openLink(u) { if (u) window.open(u, '_blank', 'noopener'); }
 function glitchAmount(t) { return reduceMotion ? 0 : Math.max(0, 1 - (t - glitchStart) / GLITCH_SECONDS); }
-   const POWER_ON_SECONDS = 1.1;
-   let powerStart = null;
-   function powerAmount(t) {
-     if (reduceMotion) return 1;
-     if (powerStart === null) powerStart = t;
-     const p = Math.min(1, (t - powerStart) / POWER_ON_SECONDS);
-     return 1 - Math.pow(1 - p, 3);
-   }
+const POWER_ON_SECONDS = 1.1;
+let powerStart = null;
+let started = false;
+const zipSound = new Audio('CRT TV Turning On Sound Effect.mp3');
+zipSound.volume = 0.5;
+
+function powerAmount(t) {
+  if (!started) return 0;                
+  if (reduceMotion) return 1;
+  if (powerStart === null) powerStart = t;
+  const p = Math.min(1, (t - powerStart) / POWER_ON_SECONDS);
+  return 1 - Math.pow(1 - p, 3);
+}
+
+function start() {
+  if (started) return;
+  started = true;
+  const el = document.getElementById('start');
+  if (el) el.remove();
+  zipSound.play().catch(() => {});
+}
+window.addEventListener('keydown', start);
+window.addEventListener('pointerdown', start);
+
 function choose(i) { sel = (i + PROJECTS.length) % PROJECTS.length; glitchStart = state.time; }
 
 
